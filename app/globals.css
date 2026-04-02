@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+:root {
+  --navy: #0a1628;
+  --navy-light: #112240;
+  --gold: #c9a84c;
+  --gold-light: #e8c96d;
+  --white: #ffffff;
+  --gray-soft: #f4f6fb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'Inter', Arial, sans-serif;
+  margin: 0;
+}
+
+@theme inline {
+  --color-navy: #0a1628;
+  --color-navy-light: #112240;
+  --color-gold: #c9a84c;
+  --color-gold-light: #e8c96d;
+}
