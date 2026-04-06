@@ -47,11 +47,12 @@ export default function Navbar() {
   }, [])
 
   async function handleLogout() {
-    await supabase.auth.signOut()
-    setUser(null)
     setDropOpen(false)
     setOpen(false)
+    await supabase.auth.signOut()
+    setUser(null)
     router.push('/')
+    router.refresh()
   }
 
   const initials = user?.name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U'
@@ -121,7 +122,7 @@ export default function Navbar() {
                       <User size={14} /> Admin Dashboard
                     </Link>
                   )}
-                  <button onClick={handleLogout}
+                  <button onMouseDown={e => e.preventDefault()} onClick={handleLogout}
                     className="w-full flex items-center gap-2 px-4 py-3 text-sm transition-colors hover:bg-white/5"
                     style={{ color: '#ff6b6b' }}>
                     <LogOut size={14} /> Sign Out
