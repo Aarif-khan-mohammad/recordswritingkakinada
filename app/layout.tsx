@@ -75,6 +75,11 @@ export const metadata: Metadata = {
   verification: {
     google: 'add-your-google-search-console-verification-code-here',
   },
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -115,8 +120,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/logo.png" type="image/png" />
+        <link rel="icon" href="/logo.png" type="image/png" sizes="any" />
         <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="shortcut icon" href="/logo.png" />
         <meta name="theme-color" content="#0a1628" />
         <meta name="geo.region" content="IN-AP" />
         <meta name="geo.placename" content="Kakinada" />
