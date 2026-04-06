@@ -102,7 +102,10 @@ export default function SignupPage() {
     const { data, error: signupErr } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
-      options: { data: { full_name: form.name } },
+      options: {
+        data: { full_name: form.name },
+        emailRedirectTo: undefined,
+      },
     })
 
     if (signupErr) { setError(signupErr.message); setLoading(false); return }
@@ -139,7 +142,7 @@ export default function SignupPage() {
         <h2 className="text-2xl font-extrabold">Account Created!</h2>
         <p className="text-base font-semibold" style={{ color: 'var(--gold)' }}>{form.name}</p>
         <p className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
-          Check your email to confirm your account, then sign in.
+          Your account is ready. You can now sign in.
         </p>
         <Link href="/login"
           className="mt-2 w-full py-3 rounded-xl font-bold text-sm text-center transition-all hover:scale-105"
