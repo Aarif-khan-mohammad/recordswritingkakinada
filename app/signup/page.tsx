@@ -87,6 +87,18 @@ export default function SignupPage() {
     if (form.password.length < 6) { setError('Password must be at least 6 characters.'); return }
     setLoading(true)
 
+    // Check duplicate email
+    const { data: existingEmail } = await supabase
+      .from('users').select('id').eq('email', form.email).maybeSingle()
+    if (existingEmail) { setError('An account with this email already exists.'); setLoading(false); return }
+
+    // Check duplicate phone
+    if (form.phone) {
+      const { data: existingPhone } = await supabase
+        .from('users').select('id').eq('phone', form.phone).maybeSingle()
+      if (existingPhone) { setError('An account with this phone number already exists.'); setLoading(false); return }
+    }
+
     const { data, error: signupErr } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
@@ -100,7 +112,7 @@ export default function SignupPage() {
         id: data.user.id,
         full_name: form.name,
         email: form.email,
-        phone: form.phone,
+        phone: form.phone || null,
         role: 'user',
         user_type: form.userType,
         organization: form.userType === 'Professional' ? form.organization : null,
