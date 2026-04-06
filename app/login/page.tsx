@@ -1,6 +1,6 @@
 'use client'
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
@@ -16,6 +16,13 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [userName, setUserName] = useState('')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('error') === 'link_expired') {
+      setError('Your confirmation link has expired. Please sign in directly — email confirmation is not required.')
+    }
+  }, [])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
