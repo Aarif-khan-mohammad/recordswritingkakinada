@@ -1,7 +1,8 @@
 'use client'
-import { motion } from 'framer-motion'
+import { motion, useInView, useMotionValue, useSpring } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import Link from 'next/link'
+import { useEffect, useRef } from 'react'
 import { FileText, Monitor, BarChart2, ShieldCheck, Clock, Star } from 'lucide-react'
 
 const fadeUp: Variants = {
@@ -18,8 +19,35 @@ const steps = [
 const highlights = [
   { icon: <ShieldCheck size={22} />, label: 'Privacy Guaranteed' },
   { icon: <Clock size={22} />, label: 'On-Time Delivery' },
-  { icon: <Star size={22} />, label: 'Quality Assured' },
+  { icon: <Star size={22} />, label: 'Since 2021' },
 ]
+
+const stats = [
+  { value: 5, suffix: '+', label: 'Years of Service', sub: 'Since 2021' },
+  { value: 579, suffix: '+', label: 'Records & Notes', sub: 'Delivered' },
+  { value: 805, suffix: '+', label: 'Drawings', sub: 'Completed' },
+  { value: 270, suffix: '+', label: 'Presentations', sub: 'Created' },
+  { value: 20, suffix: '+', label: 'Websites', sub: 'Built' },
+]
+
+function Counter({ value, suffix }: { value: number; suffix: string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const motionVal = useMotionValue(0)
+  const spring = useSpring(motionVal, { duration: 2000, bounce: 0 })
+  const inView = useInView(ref, { once: true, margin: '-80px' })
+
+  useEffect(() => {
+    if (inView) motionVal.set(value)
+  }, [inView, motionVal, value])
+
+  useEffect(() => {
+    return spring.on('change', v => {
+      if (ref.current) ref.current.textContent = Math.floor(v) + suffix
+    })
+  }, [spring, suffix])
+
+  return <span ref={ref}>0{suffix}</span>
+}
 
 export default function HomePage() {
   return (
@@ -27,14 +55,13 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative min-h-[88vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden"
         style={{ background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%)' }}>
-        {/* Decorative ring */}
         <div className="absolute w-[600px] h-[600px] rounded-full opacity-5 border-2"
           style={{ borderColor: 'var(--gold)', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
 
         <motion.p variants={fadeUp} initial="hidden" animate="show" custom={0}
           className="text-sm font-semibold tracking-widest uppercase mb-4"
           style={{ color: 'var(--gold)' }}>
-          Kakinada's Trusted Academic Partner
+          Trusted Academic Partner Since 2021
         </motion.p>
 
         <motion.h1 variants={fadeUp} initial="hidden" animate="show" custom={1}
@@ -47,7 +74,8 @@ export default function HomePage() {
         <motion.p variants={fadeUp} initial="hidden" animate="show" custom={2}
           className="mt-6 text-lg max-w-xl"
           style={{ color: 'rgba(255,255,255,0.65)' }}>
-          Reliable, confidential, and high-quality academic and technical services delivered on time.
+          Reliable, confidential, and high-quality academic and technical services —
+          serving Kakinada, Hyderabad & Bangalore for records, and anywhere in the world for web & PPT.
         </motion.p>
 
         <motion.div variants={fadeUp} initial="hidden" animate="show" custom={3}
@@ -64,7 +92,6 @@ export default function HomePage() {
           </Link>
         </motion.div>
 
-        {/* Highlights bar */}
         <motion.div variants={fadeUp} initial="hidden" animate="show" custom={4}
           className="mt-16 flex gap-8 flex-wrap justify-center">
           {highlights.map(h => (
@@ -74,6 +101,37 @@ export default function HomePage() {
             </div>
           ))}
         </motion.div>
+      </section>
+
+      {/* Stats */}
+      <section className="py-20 px-4" style={{ background: 'var(--navy-light)' }}>
+        <div className="max-w-6xl mx-auto">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }}
+            className="text-center mb-12">
+            <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: 'var(--gold)' }}>
+              Our Track Record
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold">Numbers That Speak</h2>
+            <p className="mt-3 text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              Over 5 years of consistent, quality service to students across India.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {stats.map((s, i) => (
+              <motion.div key={s.label} variants={fadeUp} initial="hidden" whileInView="show"
+                viewport={{ once: true }} custom={i}
+                className="rounded-2xl p-6 text-center border hover:-translate-y-1 transition-transform"
+                style={{ background: 'var(--navy)', borderColor: 'rgba(201,168,76,0.2)' }}>
+                <div className="text-3xl md:text-4xl font-extrabold mb-1" style={{ color: 'var(--gold)' }}>
+                  <Counter value={s.value} suffix={s.suffix} />
+                </div>
+                <div className="text-sm font-semibold mb-0.5">{s.label}</div>
+                <div className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{s.sub}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* How it Works */}
@@ -112,7 +170,7 @@ export default function HomePage() {
         <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
           <h2 className="text-3xl font-bold mb-4">Ready to get started?</h2>
           <p className="mb-8 text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
-            Submit your request today and experience professional service.
+            Join 1000+ students who trust us with their academic work.
           </p>
           <Link href="/contact"
             className="px-10 py-3 rounded-lg font-semibold text-sm transition-all hover:scale-105"
