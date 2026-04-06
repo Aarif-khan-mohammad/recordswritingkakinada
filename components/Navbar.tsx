@@ -19,16 +19,19 @@ export default function Navbar() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [dropOpen, setDropOpen] = useState(false)
-  const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null)
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null)
   const dropRef = useRef<HTMLLIElement>(null)
 
   useEffect(() => {
     async function loadUser() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setUser(null); return }
-      const { data: userData } = await supabase.from('users').select('full_name, role, email').eq('id', session.user.id).single()
-      const name = userData?.full_name || session.user.user_metadata?.full_name || 'User'
-      setUser({ name, email: userData?.email || session.user.email || '', role: userData?.role || 'user' })
+      const { data: userData } = await supabase
+        .from('users').select('full_name, role').eq('id', session.user.id).single()
+      setUser({
+        name: userData?.full_name || session.user.user_metadata?.full_name || 'User',
+        role: userData?.role || 'user',
+      })
     }
     loadUser()
     const { data: listener } = supabase.auth.onAuthStateChange(() => loadUser())
@@ -58,7 +61,6 @@ export default function Navbar() {
       className="sticky top-0 z-50 w-full">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
 
-        {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
           <Image src="/logo.png" alt="Records Writing Kakinada" width={44} height={44} className="rounded-lg" />
           <span className="font-bold text-lg hidden sm:block" style={{ color: 'var(--gold)' }}>
@@ -66,7 +68,7 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop nav */}
+        {/* Desktop */}
         <ul className="hidden md:flex gap-6 items-center">
           {navLinks.map(l => (
             <li key={l.href}>
@@ -103,7 +105,7 @@ export default function Navbar() {
               </button>
 
               {dropOpen && (
-                <div className="absolute right-0 mt-2 w-52 rounded-xl border shadow-2xl overflow-hidden"
+                <div className="absolute right-0 mt-2 w-48 rounded-xl border shadow-2xl overflow-hidden"
                   style={{ background: 'var(--navy-light)', borderColor: 'rgba(201,168,76,0.2)' }}>
                   <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(201,168,76,0.1)' }}>
                     <p className="text-sm font-bold" style={{ color: 'var(--gold)' }}>{user.name}</p>
@@ -135,14 +137,13 @@ export default function Navbar() {
               </li>
               <li>
                 <Link href="/signup"
-                  className="px-4 py-1.5 rounded-lg text-sm font-medium transition-all hover:scale-105"
+                  className="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all hover:scale-105"
                   style={{ background: 'var(--gold)', color: 'var(--navy)' }}>Sign Up</Link>
               </li>
             </>
           )}
         </ul>
 
-        {/* Mobile toggle */}
         <button className="md:hidden" onClick={() => setOpen(!open)} style={{ color: 'var(--gold)' }}>
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -183,7 +184,7 @@ export default function Navbar() {
                 </Link>
               )}
               <button onClick={handleLogout}
-                className="text-sm py-2 flex items-center gap-2 text-left"
+                className="text-sm py-2 flex items-center gap-2"
                 style={{ color: '#ff6b6b' }}>
                 <LogOut size={14} /> Sign Out
               </button>
