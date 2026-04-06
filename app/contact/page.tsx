@@ -34,7 +34,7 @@ function ContactForm() {
 
   useEffect(() => {
     const s = params.get('service')
-    if (s) setForm(f => ({ ...f, service: s }))
+    if (s) setForm(f => ({ ...f, service: s as string }))
   }, [params])
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
@@ -142,6 +142,8 @@ function ContactForm() {
     </form>
   )
 }
+
+export const dynamic = 'force-dynamic'
 
 export default function ContactPage() {
   return (

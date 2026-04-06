@@ -1,26 +1,24 @@
--- Run this in your Supabase SQL Editor
+-- Drop old tables if they exist
+drop table if exists user_roles;
+drop table if exists user_profiles;
 
-create table if not exists contact_requests (
-  id bigint generated always as identity primary key,
+-- Single unified users table
+create table if not exists users (
+  id uuid references auth.users(id) on delete cascade primary key,
   created_at timestamptz default now(),
-  name text not null,
-  email text not null,
+  full_name text,
+  email text,
   phone text,
-  service text not null,
-  num_pages text,
-  project_scope text,
-  message text
+  role text not null default 'user',
+  user_type text,
+  organization text,
+  college text,
+  year text,
+  study text,
+  stream text
 );
 
--- Enable Row Level Security
-alter table contact_requests enable row level security;
+alter table users disable row level security;
 
--- Allow anyone to insert (public form submissions)
-create policy "Allow public insert"
-  on contact_requests for insert
-  with check (true);
-
--- Only authenticated users (admin) can read
-create policy "Allow authenticated read"
-  on contact_requests for select
-  using (auth.role() = 'authenticated');
+-- Set admin role by email
+-- update users set role = 'admin' where email = 'your-email@example.com';

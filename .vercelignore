@@ -1,0 +1,7 @@
+.env.local
+.env.*
+supabase_migration.sql
+*.pem
+*.key
+.idea/
+.vscode/
