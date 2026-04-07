@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import Link from 'next/link'
-import { FileText, Monitor, BarChart2, MapPin, Globe } from 'lucide-react'
+import { FileText, Monitor, BarChart2, PenTool, MapPin, Globe } from 'lucide-react'
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -27,6 +27,38 @@ const services = [
     service: 'Records & Assignments',
   },
   {
+    icon: <PenTool size={36} />,
+    title: 'Drawings',
+    tag: 'Technical Drawing',
+    desc: 'Precise hand-drawn and technical drawings for engineering, medical, biology, circuits and more — priced per drawing based on your stream and complexity.',
+    features: [
+      'Engineering Drawings (B.Tech)',
+      'Medical & Biology Diagrams',
+      'Circuit & Network Diagrams',
+      'Flowcharts & Block Diagrams',
+    ],
+    availability: 'physical',
+    availabilityLabel: 'Kakinada · Hyderabad · Bangalore',
+    availabilityIcon: <MapPin size={12} />,
+    service: 'PPT & Drawings',
+  },
+  {
+    icon: <BarChart2 size={36} />,
+    title: 'PPT Presentations',
+    tag: 'Design',
+    desc: 'Visually compelling PowerPoint presentations crafted to impress evaluators and communicate your ideas clearly — available anywhere in the world.',
+    features: [
+      'Seminar & Project PPTs',
+      'Diagrams, Charts & Flowcharts',
+      'Professional Slide Design',
+      'Academic & Business Decks',
+    ],
+    availability: 'online',
+    availabilityLabel: 'Pan India & Worldwide',
+    availabilityIcon: <Globe size={12} />,
+    service: 'PPT & Drawings',
+  },
+  {
     icon: <Monitor size={36} />,
     title: 'Web Development',
     tag: 'Technical',
@@ -42,22 +74,6 @@ const services = [
     availabilityIcon: <Globe size={12} />,
     service: 'Web Development',
   },
-  {
-    icon: <BarChart2 size={36} />,
-    title: 'PPT & Drawings',
-    tag: 'Design',
-    desc: 'Visually compelling PowerPoint presentations and precise technical engineering drawings — crafted to impress evaluators and communicate your ideas clearly.',
-    features: [
-      'Seminar & Project PPTs',
-      'Engineering Drawings',
-      'Diagrams, Charts & Flowcharts',
-      'AutoCAD & Manual Drawings',
-    ],
-    availability: 'online',
-    availabilityLabel: 'Pan India & Worldwide',
-    availabilityIcon: <Globe size={12} />,
-    service: 'PPT & Drawings',
-  },
 ]
 
 const coverageCities = [
@@ -66,28 +82,28 @@ const coverageCities = [
     city: 'Kakinada',
     state: 'Andhra Pradesh',
     desc: 'Our home base. All services available here.',
-    services: ['Records & Assignments', 'PPT & Drawings', 'Web Development'],
+    services: ['Records & Assignments', 'Drawings', 'PPT Presentations', 'Web Development'],
   },
   {
     flag: '🌆',
     city: 'Hyderabad',
     state: 'Telangana',
     desc: 'Serving students across Hyderabad.',
-    services: ['Records & Assignments', 'PPT & Drawings', 'Web Development'],
+    services: ['Records & Assignments', 'Drawings', 'PPT Presentations', 'Web Development'],
   },
   {
     flag: '🏢',
     city: 'Bangalore',
     state: 'Karnataka',
     desc: 'Serving students across Bangalore.',
-    services: ['Records & Assignments', 'PPT & Drawings', 'Web Development'],
+    services: ['Records & Assignments', 'Drawings', 'PPT Presentations', 'Web Development'],
   },
   {
     flag: '🌐',
     city: 'Pan India & Worldwide',
     state: 'Online',
-    desc: 'Web development and PPT services available everywhere.',
-    services: ['PPT & Drawings', 'Web Development'],
+    desc: 'PPT and web development services available everywhere.',
+    services: ['PPT Presentations', 'Web Development'],
   },
 ]
 
@@ -108,26 +124,26 @@ export default function ServicesPage() {
         </motion.h1>
         <motion.p variants={fadeUp} initial="hidden" animate="show" custom={2}
           className="mt-5 text-base max-w-2xl mx-auto" style={{ color: 'rgba(255,255,255,0.6)' }}>
-          Records & Assignments available in <span style={{ color: 'var(--gold)' }}>Kakinada, Hyderabad & Bangalore</span>.
-          Web Development & PPT available <span style={{ color: 'var(--gold)' }}>anywhere in the world</span>.
+          Records, Assignments & Drawings available in <span style={{ color: 'var(--gold)' }}>Kakinada, Hyderabad & Bangalore</span>.
+          PPT & Web Development available <span style={{ color: 'var(--gold)' }}>anywhere in the world</span>.
         </motion.p>
 
         <motion.div variants={fadeUp} initial="hidden" animate="show" custom={3}
           className="mt-8 flex flex-wrap gap-3 justify-center">
           <span className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold"
             style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.25)', color: 'var(--gold)' }}>
-            <MapPin size={12} /> Records: Kakinada · Hyderabad · Bangalore
+            <MapPin size={12} /> Records & Drawings: Kakinada · Hyderabad · Bangalore
           </span>
           <span className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold"
             style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.25)', color: 'var(--gold)' }}>
-            <Globe size={12} /> Web Dev & PPT: Pan India & Worldwide
+            <Globe size={12} /> PPT & Web Dev: Pan India & Worldwide
           </span>
         </motion.div>
       </section>
 
       {/* Service Cards */}
       <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {services.map((s, i) => (
             <motion.div key={s.title} variants={fadeUp} initial="hidden" whileInView="show"
               viewport={{ once: true }} custom={i}

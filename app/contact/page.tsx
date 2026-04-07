@@ -4,8 +4,9 @@ import type { Variants } from 'framer-motion'
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { CheckCircle, AlertTriangle, Calculator } from 'lucide-react'
+import { CheckCircle, AlertTriangle, Calculator, FileText, Truck } from 'lucide-react'
 import Link from 'next/link'
+import InvoiceModal, { type InvoiceRequest } from '@/components/InvoiceModal'
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -25,9 +26,17 @@ const iStyle = {
 
 const WEB_SCOPES = ['Landing Page', 'Portfolio Website', 'Full-Stack Project', 'Academic Mini Project', 'E-commerce Site', 'Other (specify below)']
 
-// Price calc
 const BASE_RATES: Record<string, number> = { 'Theory / Assignments': 10, 'Lab Records': 15, 'Project Report': 25, 'Observation Book': 12 }
 const STREAM_MUL: Record<string, number> = { 'Inter': 1.0, 'Degree': 1.2, 'B.Tech': 1.5, 'Medical': 1.8, 'Others': 1.1 }
+
+const DRAWING_TYPES: Record<string, Record<string, number>> = {
+  'Engineering Drawing':      { 'Inter': 35, 'Degree': 45, 'B.Tech': 60, 'Medical': 50, 'Others': 40 },
+  'Medical Diagram':          { 'Inter': 40, 'Degree': 50, 'B.Tech': 55, 'Medical': 70, 'Others': 45 },
+  'Context-Free / General Sketch': { 'Inter': 25, 'Degree': 30, 'B.Tech': 35, 'Medical': 35, 'Others': 25 },
+  'Circuit / Network Diagram':{ 'Inter': 30, 'Degree': 40, 'B.Tech': 50, 'Medical': 40, 'Others': 35 },
+  'Biology / Anatomy Drawing':{ 'Inter': 35, 'Degree': 45, 'B.Tech': 45, 'Medical': 65, 'Others': 35 },
+  'Flowchart / Block Diagram':{ 'Inter': 25, 'Degree': 35, 'B.Tech': 40, 'Medical': 35, 'Others': 30 },
+}
 
 function estimatePrice(pages: string, stream: string, subjectType: string) {
   const p = parseInt(pages)
@@ -37,17 +46,34 @@ function estimatePrice(pages: string, stream: string, subjectType: string) {
   return Math.round(base * mul * p)
 }
 
+function estimateDrawingPrice(count: string, stream: string, drawType: string) {
+  const n = parseInt(count)
+  if (!n || !stream || !drawType) return null
+  const rate = DRAWING_TYPES[drawType]?.[stream]
+  if (!rate) return null
+  return { total: rate * n, perDrawing: rate }
+}
+
 function ContactForm() {
   const params = useSearchParams()
   const [form, setForm] = useState({
     name: '', email: '', phone: '', service: '', message: '',
     num_pages: '', project_scope: '', custom_scope: '',
     stream: '', subject_type: '', website_ref: '',
+    draw_type: '', draw_count: '',
+    delivery_method: '', delivery_city: '',
   })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
   const [loggedIn, setLoggedIn] = useState(false)
+  const [submittedReq, setSubmittedReq] = useState<InvoiceRequest | null>(null)
+  const [showInvoice, setShowInvoice] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [orderCount, setOrderCount] = useState<number>(0)
+  const [isStudent, setIsStudent] = useState(false)
+
+  const loyaltyPct = isStudent ? (orderCount === 0 ? 20 : orderCount === 1 ? 10 : orderCount === 2 ? 5 : 0) : 0
 
   useEffect(() => {
     const s = params.get('service')
@@ -55,8 +81,11 @@ function ContactForm() {
     supabase.auth.getSession().then(async ({ data }) => {
       if (data.session) {
         const { data: ud } = await supabase
-          .from('users').select('full_name, email, phone, study').eq('id', data.session.user.id).single()
+          .from('users').select('full_name, email, phone, study, user_type, order_count').eq('id', data.session.user.id).single()
         setLoggedIn(true)
+        setUserId(data.session.user.id)
+        setOrderCount(ud?.order_count ?? 0)
+        setIsStudent(ud?.user_type === 'Student')
         setForm(f => ({
           ...f,
           name: ud?.full_name || '',
@@ -77,6 +106,13 @@ function ContactForm() {
   const priceEstimate = form.service === 'Records & Assignments'
     ? estimatePrice(form.num_pages, form.stream, form.subject_type)
     : null
+  const drawEstimate = form.service === 'PPT & Drawings'
+    ? estimateDrawingPrice(form.draw_count, form.stream, form.draw_type)
+    : null
+
+  const baseForDiscount = priceEstimate ?? drawEstimate?.total ?? null
+  const loyaltyDiscount = baseForDiscount && loyaltyPct > 0 ? Math.round(baseForDiscount * loyaltyPct / 100) : 0
+  const finalPrice = baseForDiscount ? baseForDiscount - loyaltyDiscount : null
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -96,32 +132,88 @@ function ContactForm() {
       payload.project_scope = scope
       if (form.website_ref) payload.website_ref = form.website_ref
     }
-    const { error: err } = await supabase.from('contact_requests').insert([payload])
+    if (form.service === 'PPT & Drawings') {
+      if (form.draw_type) payload.subject_type = form.draw_type
+      if (form.draw_count) payload.num_pages = form.draw_count
+      if (form.stream) payload.stream = form.stream
+    }
+    if (form.delivery_method) payload.delivery_method = form.delivery_method
+    if (form.delivery_city) payload.delivery_city = form.delivery_city
+    // attach pricing + loyalty to payload
+    if (baseForDiscount) {
+      payload.base_price = String(baseForDiscount)
+      if (loyaltyDiscount > 0) {
+        payload.loyalty_discount = String(loyaltyDiscount)
+        payload.loyalty_percent = String(loyaltyPct)
+      }
+      payload.total_price = String(finalPrice ?? baseForDiscount)
+    }
+
+    const { data: inserted, error: err } = await supabase
+      .from('contact_requests').insert([payload]).select().single()
+    if (err) { setError(err.message); setLoading(false); return }
+
+    // increment order_count for student users
+    if (userId && isStudent) {
+      await supabase.from('users').update({ order_count: orderCount + 1 }).eq('id', userId)
+    }
+
     setLoading(false)
-    if (err) { setError(err.message); return }
+    setSubmittedReq(inserted)
     setSuccess(true)
   }
 
   if (success) return (
-    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-      className="text-center py-16 flex flex-col items-center gap-4">
-      <CheckCircle size={56} style={{ color: 'var(--gold)' }} />
-      <h3 className="text-2xl font-bold">Request Submitted!</h3>
-      <p style={{ color: 'rgba(255,255,255,0.6)' }}>We&apos;ll get back to you shortly.</p>
-      <button onClick={() => { setSuccess(false); setForm({ name: '', email: '', phone: '', service: '', message: '', num_pages: '', project_scope: '', custom_scope: '', stream: '', subject_type: '', website_ref: '' }) }}
-        className="mt-4 px-6 py-2 rounded-lg text-sm font-semibold"
-        style={{ background: 'var(--gold)', color: 'var(--navy)' }}>
-        Submit Another
-      </button>
-    </motion.div>
+    <>
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+        className="text-center py-16 flex flex-col items-center gap-4">
+        <CheckCircle size={56} style={{ color: 'var(--gold)' }} />
+        <h3 className="text-2xl font-bold">Request Submitted!</h3>
+        <p style={{ color: 'rgba(255,255,255,0.6)' }}>We&apos;ll get back to you shortly.</p>
+        <div className="flex gap-3 mt-2">
+          {submittedReq && (
+            <button onClick={() => setShowInvoice(true)}
+              className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all hover:scale-105"
+              style={{ background: 'var(--gold)', color: 'var(--navy)' }}>
+              <FileText size={15} /> View Invoice
+            </button>
+          )}
+          <button onClick={() => { setSuccess(false); setSubmittedReq(null); setForm({ name: '', email: '', phone: '', service: '', message: '', num_pages: '', project_scope: '', custom_scope: '', stream: '', subject_type: '', website_ref: '', draw_type: '', draw_count: '', delivery_method: '', delivery_city: '' }) }}
+            className="px-5 py-2 rounded-lg text-sm font-semibold border"
+            style={{ borderColor: 'rgba(201,168,76,0.3)', color: 'rgba(255,255,255,0.6)' }}>
+            Submit Another
+          </button>
+        </div>
+      </motion.div>
+      {showInvoice && submittedReq && (
+        <InvoiceModal req={submittedReq} onClose={() => setShowInvoice(false)} />
+      )}
+    </>
   )
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {loggedIn && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs"
-          style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)', color: 'var(--gold)' }}>
-          ✓ Logged in — your details have been auto-filled
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs"
+            style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)', color: 'var(--gold)' }}>
+            ✓ Logged in — your details have been auto-filled
+          </div>
+          {isStudent && loyaltyPct > 0 && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold"
+              style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.25)', color: '#4ade80' }}>
+              🎓 Student loyalty discount: <strong>{loyaltyPct}% off</strong> applied to your order
+              {orderCount === 0 && ' (1st order welcome discount)'}
+              {orderCount === 1 && ' (2nd order discount)'}
+              {orderCount === 2 && ' (3rd order discount)'}
+            </div>
+          )}
+          {isStudent && loyaltyPct === 0 && orderCount >= 3 && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.45)' }}>
+              🎓 Student account — loyalty discounts applied on first 3 orders
+            </div>
+          )}
         </div>
       )}
 
@@ -210,18 +302,96 @@ function ContactForm() {
             {/* Price Estimate */}
             {priceEstimate && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className="flex items-center justify-between px-4 py-3 rounded-xl border"
+                className="flex flex-col gap-2 px-4 py-3 rounded-xl border"
                 style={{ background: 'rgba(201,168,76,0.08)', borderColor: 'rgba(201,168,76,0.3)' }}>
-                <div className="flex items-center gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                  <Calculator size={16} style={{ color: 'var(--gold)' }} />
-                  Estimated Price
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                    <Calculator size={16} style={{ color: 'var(--gold)' }} />
+                    Estimated Price
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {loyaltyDiscount > 0
+                      ? <span className="text-sm line-through" style={{ color: 'rgba(255,255,255,0.35)' }}>₹{priceEstimate}</span>
+                      : null}
+                    <span className="text-xl font-extrabold" style={{ color: 'var(--gold)' }}>₹{finalPrice ?? priceEstimate}</span>
+                    <Link href="/price-calculator" className="text-xs hover:underline" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                      Full calculator →
+                    </Link>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xl font-extrabold" style={{ color: 'var(--gold)' }}>₹{priceEstimate}</span>
-                  <Link href="/price-calculator" className="text-xs hover:underline" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                    Full calculator →
-                  </Link>
+                {loyaltyDiscount > 0 && (
+                  <div className="text-xs font-semibold" style={{ color: '#4ade80' }}>
+                    🎓 {loyaltyPct}% student discount applied — you save ₹{loyaltyDiscount}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── PPT & Drawings ── */}
+      <AnimatePresence>
+        {form.service === 'PPT & Drawings' && (
+          <motion.div key="drawings" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }} className="flex flex-col gap-4 overflow-hidden">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold" style={{ color: 'var(--gold)' }}>Stream</label>
+                <select style={{ ...iStyle, cursor: 'pointer' }} value={form.stream} onChange={e => set('stream', e.target.value)}>
+                  <option value="" style={{ background: '#112240' }}>Select stream...</option>
+                  {Object.keys(STREAM_MUL).map(s => (
+                    <option key={s} value={s} style={{ background: '#112240' }}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold" style={{ color: 'var(--gold)' }}>Drawing Type</label>
+                <select style={{ ...iStyle, cursor: 'pointer' }} value={form.draw_type} onChange={e => set('draw_type', e.target.value)}>
+                  <option value="" style={{ background: '#112240' }}>Select drawing type...</option>
+                  {Object.entries(DRAWING_TYPES).map(([k, rates]) => {
+                    const rate = form.stream ? rates[form.stream] : null
+                    return (
+                      <option key={k} value={k} style={{ background: '#112240' }}>
+                        {k}{rate ? ` — ₹${rate}/drawing` : ''}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold" style={{ color: 'var(--gold)' }}>Number of Drawings *</label>
+              <input style={iStyle} required type="number" min="1" value={form.draw_count}
+                onChange={e => set('draw_count', e.target.value)} placeholder="e.g. 10" />
+            </div>
+
+            {drawEstimate && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="flex flex-col gap-2 px-4 py-3 rounded-xl border"
+                style={{ background: 'rgba(201,168,76,0.08)', borderColor: 'rgba(201,168,76,0.3)' }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                    <Calculator size={16} style={{ color: 'var(--gold)' }} />
+                    ₹{drawEstimate.perDrawing}/drawing × {form.draw_count}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {loyaltyDiscount > 0
+                      ? <span className="text-sm line-through" style={{ color: 'rgba(255,255,255,0.35)' }}>₹{drawEstimate.total}</span>
+                      : null}
+                    <span className="text-xl font-extrabold" style={{ color: 'var(--gold)' }}>₹{finalPrice ?? drawEstimate.total}</span>
+                    <Link href="/price-calculator" className="text-xs hover:underline" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                      Full calculator →
+                    </Link>
+                  </div>
                 </div>
+                {loyaltyDiscount > 0 && (
+                  <div className="text-xs font-semibold" style={{ color: '#4ade80' }}>
+                    🎓 {loyaltyPct}% student discount applied — you save ₹{loyaltyDiscount}
+                  </div>
+                )}
               </motion.div>
             )}
           </motion.div>
@@ -265,6 +435,75 @@ function ContactForm() {
                 onChange={e => set('website_ref', e.target.value)}
                 placeholder="https://example.com — site you like or want similar to" />
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Delivery ── */}
+      <AnimatePresence>
+        {(form.service === 'Records & Assignments' || form.service === 'PPT & Drawings') && (
+          <motion.div key="delivery" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }} className="flex flex-col gap-3 overflow-hidden">
+
+            <div className="flex items-center gap-2 pt-1">
+              <Truck size={14} style={{ color: 'var(--gold)' }} />
+              <label className="text-xs font-semibold" style={{ color: 'var(--gold)' }}>Delivery Method *</label>
+            </div>
+
+            {/* Option cards */}
+            <div className="flex flex-col gap-2">
+              {([
+                {
+                  key: 'local_pickup',
+                  title: '🏠 Local Pickup',
+                  desc: 'You visit our location in Kakinada to drop off materials and collect completed work. No delivery charges.',
+                  note: null,
+                },
+                {
+                  key: 'local_rapido',
+                  title: '🛵 Local Rapido / Bike Delivery',
+                  desc: 'You book a Rapido/bike to send your materials to us and another to collect the completed work.',
+                  note: '⚠️ Both pickup & return Rapido charges are paid by you.',
+                },
+                {
+                  key: 'long_distance',
+                  title: '📦 Long Distance Courier',
+                  desc: 'You courier your materials to us and arrange return courier for completed work.',
+                  note: '⚠️ All courier charges (both ways) are paid by you.',
+                },
+              ] as const).map(opt => (
+                <button type="button" key={opt.key}
+                  onClick={() => set('delivery_method', opt.key)}
+                  className="text-left px-4 py-3 rounded-xl border transition-all"
+                  style={{
+                    background: form.delivery_method === opt.key ? 'rgba(201,168,76,0.12)' : 'rgba(255,255,255,0.03)',
+                    borderColor: form.delivery_method === opt.key ? 'var(--gold)' : 'rgba(201,168,76,0.15)',
+                  }}>
+                  <p className="text-sm font-semibold" style={{ color: form.delivery_method === opt.key ? 'var(--gold)' : '#fff' }}>
+                    {opt.title}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>{opt.desc}</p>
+                  {opt.note && (
+                    <p className="text-xs mt-1 font-medium" style={{ color: '#fbbf24' }}>{opt.note}</p>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* City field for long distance */}
+            <AnimatePresence>
+              {form.delivery_method === 'long_distance' && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold" style={{ color: 'var(--gold)' }}>Your City / Address</label>
+                    <input style={iStyle} value={form.delivery_city}
+                      onChange={e => set('delivery_city', e.target.value)}
+                      placeholder="e.g. Hyderabad, Vijayawada..." />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

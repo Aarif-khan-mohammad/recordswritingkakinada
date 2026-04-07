@@ -3,7 +3,7 @@ import { motion, useInView, useMotionValue, useSpring } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
-import { FileText, Monitor, BarChart2, ShieldCheck, Clock, Star } from 'lucide-react'
+import { FileText, Monitor, BarChart2, ShieldCheck, Clock, Star, GraduationCap } from 'lucide-react'
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -161,6 +161,58 @@ export default function HomePage() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Student Loyalty Discount */}
+      <section className="py-20 px-4" style={{ background: 'var(--navy-light)' }}>
+        <div className="max-w-4xl mx-auto">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }}
+            className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
+              style={{ background: 'rgba(201,168,76,0.15)', color: 'var(--gold)', border: '1px solid rgba(201,168,76,0.3)' }}>
+              <GraduationCap size={14} /> Student Exclusive
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">
+              Loyalty <span style={{ color: 'var(--gold)' }}>Discounts</span> for Students
+            </h2>
+            <p className="text-sm max-w-lg mx-auto" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              Create a free student account and save more with every order. Discounts apply automatically.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+            {[
+              { order: '1st Order', pct: '20%', label: 'Welcome Discount', color: '#4ade80', bg: 'rgba(74,222,128,0.08)', border: 'rgba(74,222,128,0.25)' },
+              { order: '2nd Order', pct: '10%', label: 'Returning Student', color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.25)' },
+              { order: '3rd Order', pct: '5%', label: 'Loyalty Reward', color: 'var(--gold)', bg: 'rgba(201,168,76,0.08)', border: 'rgba(201,168,76,0.25)' },
+            ].map((d, i) => (
+              <motion.div key={d.order} variants={fadeUp} initial="hidden" whileInView="show"
+                viewport={{ once: true }} custom={i}
+                className="rounded-2xl p-6 text-center border"
+                style={{ background: d.bg, borderColor: d.border }}>
+                <div className="text-4xl font-extrabold mb-1" style={{ color: d.color }}>{d.pct}</div>
+                <div className="text-sm font-bold mb-1">{d.order}</div>
+                <div className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>{d.label}</div>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }}
+            className="rounded-2xl p-5 border flex flex-col sm:flex-row items-center justify-between gap-4"
+            style={{ background: 'rgba(201,168,76,0.06)', borderColor: 'rgba(201,168,76,0.2)' }}>
+            <div className="flex items-start gap-3">
+              <GraduationCap size={20} className="shrink-0 mt-0.5" style={{ color: 'var(--gold)' }} />
+              <p className="text-sm" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                Discounts apply to <strong style={{ color: '#fff' }}>student accounts only</strong>. Sign up as a student, place your order through the contact form, and the discount is applied automatically to your invoice.
+              </p>
+            </div>
+            <Link href="/signup"
+              className="shrink-0 px-6 py-2.5 rounded-xl font-bold text-sm transition-all hover:scale-105 whitespace-nowrap"
+              style={{ background: 'var(--gold)', color: 'var(--navy)' }}>
+              Create Student Account
+            </Link>
+          </motion.div>
         </div>
       </section>
 

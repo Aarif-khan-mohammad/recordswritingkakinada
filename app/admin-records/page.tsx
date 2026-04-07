@@ -3,15 +3,12 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { LogOut, RefreshCw, BarChart2, Inbox, Monitor, Smartphone, Tablet, Globe, MapPin, Users } from 'lucide-react'
+import { LogOut, RefreshCw, BarChart2, Inbox, Monitor, Smartphone, Tablet, Globe, MapPin, Users, FileText } from 'lucide-react'
+import InvoiceModal, { type InvoiceRequest } from '@/components/InvoiceModal'
 
 export const dynamic = 'force-dynamic'
 
-type Request = {
-  id: number; created_at: string; name: string; email: string
-  phone: string; service: string; num_pages: string | null
-  project_scope: string | null; message: string
-}
+type Request = InvoiceRequest
 
 type VisitorLog = {
   id: number; created_at: string; ip: string; device: string
@@ -75,6 +72,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<AppUser[]>([])
   const [loading, setLoading] = useState(true)
   const [authed, setAuthed] = useState(false)
+  const [invoiceReq, setInvoiceReq] = useState<Request | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
@@ -174,7 +172,7 @@ export default function AdminPage() {
                 <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'var(--navy-light)', borderBottom: '1px solid rgba(201,168,76,0.2)' }}>
-                      {['#', 'Date', 'Name', 'Email', 'Phone', 'Service', 'Details', 'Message'].map(h => <TH key={h}>{h}</TH>)}
+                      {['#', 'Date', 'Name', 'Email', 'Phone', 'Service', 'Details', 'Message', 'Invoice'].map(h => <TH key={h}>{h}</TH>)}
                     </tr>
                   </thead>
                   <tbody>
@@ -196,6 +194,13 @@ export default function AdminPage() {
                         </td>
                         <td className="px-4 py-3 text-xs max-w-xs truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>
                           {r.message || '—'}
+                        </td>
+                        <td className="px-4 py-3">
+                          <button onClick={() => setInvoiceReq(r)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105"
+                            style={{ background: 'rgba(201,168,76,0.15)', color: 'var(--gold)', border: '1px solid rgba(201,168,76,0.3)' }}>
+                            <FileText size={12} /> Invoice
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -306,6 +311,8 @@ export default function AdminPage() {
             )
         )}
       </div>
+
+      {invoiceReq && <InvoiceModal req={invoiceReq} onClose={() => setInvoiceReq(null)} />}
     </div>
   )
 }
