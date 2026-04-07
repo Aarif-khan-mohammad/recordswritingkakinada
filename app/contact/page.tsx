@@ -31,10 +31,27 @@ function ContactForm() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const [loggedIn, setLoggedIn] = useState(false)
 
   useEffect(() => {
     const s = params.get('service')
-    if (s) setForm(f => ({ ...f, service: s as string }))
+    // Auto-fill from logged in user
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (data.session) {
+        const { data: userData } = await supabase
+          .from('users').select('full_name, email, phone').eq('id', data.session.user.id).single()
+        setLoggedIn(true)
+        setForm(f => ({
+          ...f,
+          name: userData?.full_name || '',
+          email: userData?.email || data.session!.user.email || '',
+          phone: userData?.phone || '',
+          service: s || '',
+        }))
+      } else {
+        if (s) setForm(f => ({ ...f, service: s }))
+      }
+    })
   }, [params])
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
@@ -72,20 +89,32 @@ function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {loggedIn && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs"
+          style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)', color: 'var(--gold)' }}>
+          ✓ Logged in — your details have been auto-filled
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-semibold" style={{ color: 'var(--gold)' }}>Full Name *</label>
-          <input style={inputStyle} required value={form.name} onChange={e => set('name', e.target.value)} placeholder="Your name" />
+          <input style={{ ...inputStyle, opacity: loggedIn ? 0.7 : 1 }} required value={form.name}
+            onChange={e => set('name', e.target.value)} placeholder="Your name"
+            readOnly={loggedIn} />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-semibold" style={{ color: 'var(--gold)' }}>Email *</label>
-          <input style={inputStyle} required type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="you@email.com" />
+          <input style={{ ...inputStyle, opacity: loggedIn ? 0.7 : 1 }} required type="email" value={form.email}
+            onChange={e => set('email', e.target.value)} placeholder="you@email.com"
+            readOnly={loggedIn} />
         </div>
       </div>
 
       <div className="flex flex-col gap-1">
         <label className="text-xs font-semibold" style={{ color: 'var(--gold)' }}>Phone</label>
-        <input style={inputStyle} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+91 XXXXX XXXXX" />
+        <input style={{ ...inputStyle, opacity: loggedIn ? 0.7 : 1 }} value={form.phone}
+          onChange={e => set('phone', e.target.value)} placeholder="+91 XXXXX XXXXX"
+          readOnly={loggedIn} />
       </div>
 
       <div className="flex flex-col gap-1">

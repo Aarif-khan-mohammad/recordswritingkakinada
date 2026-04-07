@@ -55,7 +55,7 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative min-h-[88vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden"
         style={{ background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%)' }}>
-        <div className="absolute w-[600px] h-[600px] rounded-full opacity-5 border-2"
+        <div className="absolute w-[600px] h-[600px] rounded-full opacity-5 border-2 pointer-events-none"
           style={{ borderColor: 'var(--gold)', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
 
         <motion.p variants={fadeUp} initial="hidden" animate="show" custom={0}
