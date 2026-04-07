@@ -29,6 +29,7 @@ export default function Footer() {
               { href: '/', label: 'Home' },
               { href: '/about', label: 'About' },
               { href: '/services', label: 'Services' },
+              { href: '/price-calculator', label: 'Pricing' },
               { href: '/contact', label: 'Contact' },
               { href: '/privacy', label: 'Privacy Policy' },
             ].map(l => (
