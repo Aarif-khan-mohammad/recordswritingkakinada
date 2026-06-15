@@ -1,107 +1,188 @@
 'use client'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import Link from 'next/link'
-import { FileText, Monitor, BarChart2, PenTool, MapPin, Globe } from 'lucide-react'
+import { useState } from 'react'
+import { FileText, Monitor, BarChart2, PenTool, MapPin, Globe, Calculator } from 'lucide-react'
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
   show: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.15, duration: 0.55, ease: 'easeOut' as const } }),
 }
 
-const services = [
-  {
-    icon: <FileText size={36} />,
-    title: 'Records & Assignments',
-    tag: 'Academic',
-    desc: 'Professionally handwritten or typed lab records, assignments, observation books, and project reports — tailored to your university syllabus and standards.',
-    features: [
-      'Lab Records (All Subjects)',
-      'Assignments & Observation Books',
-      'Project Reports',
-      'Seminar & Mini Project Records',
-    ],
-    availability: 'physical',
-    availabilityLabel: 'Kakinada · Hyderabad · Bangalore',
-    availabilityIcon: <MapPin size={12} />,
-    service: 'Records & Assignments',
-  },
-  {
-    icon: <PenTool size={36} />,
-    title: 'Drawings',
-    tag: 'Technical Drawing',
-    desc: 'Precise hand-drawn and technical drawings for engineering, medical, biology, circuits and more — priced per drawing based on your stream and complexity.',
-    features: [
-      'Engineering Drawings (B.Tech)',
-      'Medical & Biology Diagrams',
-      'Circuit & Network Diagrams',
-      'Flowcharts & Block Diagrams',
-    ],
-    availability: 'physical',
-    availabilityLabel: 'Kakinada · Hyderabad · Bangalore',
-    availabilityIcon: <MapPin size={12} />,
-    service: 'PPT & Drawings',
-  },
-  {
-    icon: <BarChart2 size={36} />,
-    title: 'PPT Presentations',
-    tag: 'Design',
-    desc: 'Visually compelling PowerPoint presentations crafted to impress evaluators and communicate your ideas clearly — available anywhere in the world.',
-    features: [
-      'Seminar & Project PPTs',
-      'Diagrams, Charts & Flowcharts',
-      'Professional Slide Design',
-      'Academic & Business Decks',
-    ],
-    availability: 'online',
-    availabilityLabel: 'Pan India & Worldwide',
-    availabilityIcon: <Globe size={12} />,
-    service: 'PPT & Drawings',
-  },
-  {
-    icon: <Monitor size={36} />,
-    title: 'Web Development',
-    tag: 'Technical',
-    desc: 'Custom websites and web applications built with modern technologies — available to students and professionals anywhere in India and worldwide.',
-    features: [
-      'Portfolio & Personal Sites',
-      'Academic Mini & Major Projects',
-      'React / Next.js / Full-Stack',
-      'E-commerce & Business Sites',
-    ],
-    availability: 'online',
-    availabilityLabel: 'Pan India & Worldwide',
-    availabilityIcon: <Globe size={12} />,
-    service: 'Web Development',
-  },
-]
+const iStyle = {
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(201,168,76,0.25)',
+  color: '#fff',
+  borderRadius: '0.5rem',
+  padding: '0.55rem 0.75rem',
+  width: '100%',
+  fontSize: '0.8rem',
+  outline: 'none',
+}
+
+const RECORD_BASE: Record<string, number> = {
+  'Theory / Assignments': 10,
+  'Lab Records': 15,
+  'Project Report': 25,
+  'Observation Book': 12,
+}
+
+const STREAM_MUL: Record<string, number> = {
+  'Inter': 1.0, 'Degree': 1.2, 'B.Tech': 1.5,
+  'M.Tech': 1.7, 'Masters': 1.6, 'Medical': 1.8, 'Others': 1.1,
+}
+
+const DRAWING_TYPES: Record<string, Record<string, number>> = {
+  'Engineering Drawing':       { 'Inter': 35, 'Degree': 45, 'B.Tech': 60, 'M.Tech': 70, 'Masters': 65, 'Medical': 50, 'Others': 40 },
+  'Medical Diagram':           { 'Inter': 40, 'Degree': 50, 'B.Tech': 55, 'M.Tech': 65, 'Masters': 60, 'Medical': 70, 'Others': 45 },
+  'Context-Free / General Sketch': { 'Inter': 25, 'Degree': 30, 'B.Tech': 35, 'M.Tech': 40, 'Masters': 38, 'Medical': 35, 'Others': 25 },
+  'Circuit / Network Diagram': { 'Inter': 30, 'Degree': 40, 'B.Tech': 50, 'M.Tech': 60, 'Masters': 55, 'Medical': 40, 'Others': 35 },
+  'Biology / Anatomy Drawing': { 'Inter': 35, 'Degree': 45, 'B.Tech': 45, 'M.Tech': 55, 'Masters': 50, 'Medical': 65, 'Others': 35 },
+  'Flowchart / Block Diagram': { 'Inter': 25, 'Degree': 35, 'B.Tech': 40, 'M.Tech': 50, 'Masters': 45, 'Medical': 35, 'Others': 30 },
+}
+
+const streams = Object.keys(STREAM_MUL)
+
+function RecordsCalculator() {
+  const [stream, setStream] = useState('')
+  const [type, setType] = useState('')
+  const [pages, setPages] = useState('')
+
+  const price = (() => {
+    const p = parseInt(pages)
+    if (!p || !stream || !type) return null
+    return Math.round((RECORD_BASE[type] || 10) * (STREAM_MUL[stream] || 1) * p)
+  })()
+
+  const contactHref = `/contact?service=${encodeURIComponent('Records & Assignments')}${pages ? `&pages=${pages}` : ''}`
+
+  return (
+    <div className="flex flex-col gap-3 mt-4 pt-4 border-t" style={{ borderColor: 'rgba(201,168,76,0.15)' }}>
+      <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: 'var(--gold)' }}>
+        <Calculator size={13} /> Estimate Price
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <select style={{ ...iStyle, cursor: 'pointer' }} value={stream} onChange={e => setStream(e.target.value)}>
+          <option value="" style={{ background: '#112240' }}>Stream...</option>
+          {streams.map(s => <option key={s} value={s} style={{ background: '#112240' }}>{s}</option>)}
+        </select>
+        <select style={{ ...iStyle, cursor: 'pointer' }} value={type} onChange={e => setType(e.target.value)}>
+          <option value="" style={{ background: '#112240' }}>Record type...</option>
+          {Object.keys(RECORD_BASE).map(t => <option key={t} value={t} style={{ background: '#112240' }}>{t}</option>)}
+        </select>
+      </div>
+
+      <input
+        style={iStyle} type="number" min="1" value={pages}
+        onChange={e => setPages(e.target.value)} placeholder="Number of pages (e.g. 50)"
+      />
+
+      <AnimatePresence>
+        {price && (
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="flex items-center justify-between px-3 py-2.5 rounded-xl border"
+            style={{ background: 'rgba(201,168,76,0.08)', borderColor: 'rgba(201,168,76,0.3)' }}>
+            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>Estimated Total</span>
+            <span className="text-lg font-extrabold" style={{ color: 'var(--gold)' }}>₹{price}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <Link href={contactHref}
+        className="w-full text-center py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105"
+        style={{ background: 'var(--gold)', color: 'var(--navy)' }}>
+        Submit Request
+      </Link>
+    </div>
+  )
+}
+
+function DrawingsCalculator() {
+  const [stream, setStream] = useState('')
+  const [drawType, setDrawType] = useState('')
+  const [count, setCount] = useState('')
+
+  const result = (() => {
+    const n = parseInt(count)
+    if (!n || !stream || !drawType) return null
+    const rate = DRAWING_TYPES[drawType]?.[stream]
+    if (!rate) return null
+    return { rate, total: rate * n }
+  })()
+
+  return (
+    <div className="flex flex-col gap-3 mt-4 pt-4 border-t" style={{ borderColor: 'rgba(201,168,76,0.15)' }}>
+      <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: 'var(--gold)' }}>
+        <Calculator size={13} /> Estimate Price
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <select style={{ ...iStyle, cursor: 'pointer' }} value={stream} onChange={e => { setStream(e.target.value); setDrawType('') }}>
+          <option value="" style={{ background: '#112240' }}>Stream...</option>
+          {streams.map(s => <option key={s} value={s} style={{ background: '#112240' }}>{s}</option>)}
+        </select>
+        <select style={{ ...iStyle, cursor: 'pointer' }} value={drawType} onChange={e => setDrawType(e.target.value)}>
+          <option value="" style={{ background: '#112240' }}>Drawing type...</option>
+          {Object.entries(DRAWING_TYPES).map(([k, rates]) => {
+            const rate = stream ? rates[stream] : null
+            return (
+              <option key={k} value={k} style={{ background: '#112240' }}>
+                {k}{rate ? ` — ₹${rate}` : ''}
+              </option>
+            )
+          })}
+        </select>
+      </div>
+
+      <input
+        style={iStyle} type="number" min="1" value={count}
+        onChange={e => setCount(e.target.value)} placeholder="Number of drawings (e.g. 10)"
+      />
+
+      <AnimatePresence>
+        {result && (
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="flex flex-col gap-1 px-3 py-2.5 rounded-xl border"
+            style={{ background: 'rgba(201,168,76,0.08)', borderColor: 'rgba(201,168,76,0.3)' }}>
+            <div className="flex items-center justify-between">
+              <span className="text-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                ₹{result.rate}/drawing × {count}
+              </span>
+              <span className="text-lg font-extrabold" style={{ color: 'var(--gold)' }}>₹{result.total}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <Link href={`/contact?service=${encodeURIComponent('PPT & Drawings')}`}
+        className="w-full text-center py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105"
+        style={{ background: 'var(--gold)', color: 'var(--navy)' }}>
+        Submit Request
+      </Link>
+    </div>
+  )
+}
 
 const coverageCities = [
   {
-    flag: '🏙️',
-    city: 'Kakinada',
-    state: 'Andhra Pradesh',
+    flag: '🏙️', city: 'Kakinada', state: 'Andhra Pradesh',
     desc: 'Our home base. All services available here.',
     services: ['Records & Assignments', 'Drawings', 'PPT Presentations', 'Web Development'],
   },
   {
-    flag: '🌆',
-    city: 'Hyderabad',
-    state: 'Telangana',
+    flag: '🌆', city: 'Hyderabad', state: 'Telangana',
     desc: 'Serving students across Hyderabad.',
     services: ['Records & Assignments', 'Drawings', 'PPT Presentations', 'Web Development'],
   },
   {
-    flag: '🏢',
-    city: 'Bangalore',
-    state: 'Karnataka',
+    flag: '🏢', city: 'Bangalore', state: 'Karnataka',
     desc: 'Serving students across Bangalore.',
     services: ['Records & Assignments', 'Drawings', 'PPT Presentations', 'Web Development'],
   },
   {
-    flag: '🌐',
-    city: 'Pan India & Worldwide',
-    state: 'Online',
+    flag: '🌐', city: 'Pan India & Worldwide', state: 'Online',
     desc: 'PPT and web development services available everywhere.',
     services: ['PPT Presentations', 'Web Development'],
   },
@@ -127,7 +208,6 @@ export default function ServicesPage() {
           Records, Assignments & Drawings available in <span style={{ color: 'var(--gold)' }}>Kakinada, Hyderabad & Bangalore</span>.
           PPT & Web Development available <span style={{ color: 'var(--gold)' }}>anywhere in the world</span>.
         </motion.p>
-
         <motion.div variants={fadeUp} initial="hidden" animate="show" custom={3}
           className="mt-8 flex flex-wrap gap-3 justify-center">
           <span className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold"
@@ -143,55 +223,144 @@ export default function ServicesPage() {
 
       {/* Service Cards */}
       <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {services.map((s, i) => (
-            <motion.div key={s.title} variants={fadeUp} initial="hidden" whileInView="show"
-              viewport={{ once: true }} custom={i}
-              className="rounded-2xl p-8 border flex flex-col hover:-translate-y-2 transition-transform"
-              style={{ background: 'var(--navy-light)', borderColor: 'rgba(201,168,76,0.2)' }}>
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
 
-              <div className="flex items-start justify-between mb-5">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                  style={{ background: 'rgba(201,168,76,0.1)', color: 'var(--gold)' }}>
-                  {s.icon}
-                </div>
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-                  style={{
-                    background: s.availability === 'online' ? 'rgba(34,197,94,0.1)' : 'rgba(96,165,250,0.1)',
-                    color: s.availability === 'online' ? '#4ade80' : '#60a5fa',
-                    border: `1px solid ${s.availability === 'online' ? 'rgba(34,197,94,0.2)' : 'rgba(96,165,250,0.2)'}`,
-                  }}>
-                  {s.availabilityIcon} {s.availability === 'online' ? 'Worldwide' : 'In-Person'}
-                </span>
+          {/* ── Records & Assignments ── */}
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={0}
+            className="rounded-2xl p-6 border flex flex-col"
+            style={{ background: 'var(--navy-light)', borderColor: 'rgba(201,168,76,0.2)' }}>
+            <div className="flex items-start justify-between mb-5">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                style={{ background: 'rgba(201,168,76,0.1)', color: 'var(--gold)' }}>
+                <FileText size={36} />
               </div>
-
-              <span className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: 'var(--gold)' }}>
-                {s.tag}
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                style={{ background: 'rgba(96,165,250,0.1)', color: '#60a5fa', border: '1px solid rgba(96,165,250,0.2)' }}>
+                <MapPin size={12} /> In-Person
               </span>
-              <h3 className="text-xl font-bold mb-3">{s.title}</h3>
-              <p className="text-sm mb-5 flex-1" style={{ color: 'rgba(255,255,255,0.6)' }}>{s.desc}</p>
+            </div>
+            <span className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: 'var(--gold)' }}>Academic</span>
+            <h3 className="text-xl font-bold mb-3">Records & Assignments</h3>
+            <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              Professionally handwritten or typed lab records, assignments, observation books, and project reports — tailored to your university syllabus.
+            </p>
+            <ul className="mb-2 flex flex-col gap-1.5">
+              {['Lab Records (All Subjects)', 'Assignments & Observation Books', 'Project Reports', 'Seminar & Mini Project Records'].map(f => (
+                <li key={f} className="text-xs flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                  <span style={{ color: 'var(--gold)' }}>✓</span> {f}
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center gap-1.5 mt-2 text-xs" style={{ color: 'rgba(201,168,76,0.7)' }}>
+              <MapPin size={11} /><span>Kakinada · Hyderabad · Bangalore</span>
+            </div>
+            <RecordsCalculator />
+          </motion.div>
 
-              <ul className="mb-5 flex flex-col gap-1.5">
-                {s.features.map(f => (
-                  <li key={f} className="text-xs flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                    <span style={{ color: 'var(--gold)' }}>✓</span> {f}
-                  </li>
-                ))}
-              </ul>
-
-              <div className="flex items-center gap-1.5 mb-6 text-xs"
-                style={{ color: 'rgba(201,168,76,0.7)' }}>
-                {s.availabilityIcon}
-                <span>{s.availabilityLabel}</span>
+          {/* ── Drawings ── */}
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={1}
+            className="rounded-2xl p-6 border flex flex-col"
+            style={{ background: 'var(--navy-light)', borderColor: 'rgba(201,168,76,0.2)' }}>
+            <div className="flex items-start justify-between mb-5">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                style={{ background: 'rgba(201,168,76,0.1)', color: 'var(--gold)' }}>
+                <PenTool size={36} />
               </div>
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                style={{ background: 'rgba(96,165,250,0.1)', color: '#60a5fa', border: '1px solid rgba(96,165,250,0.2)' }}>
+                <MapPin size={12} /> In-Person
+              </span>
+            </div>
+            <span className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: 'var(--gold)' }}>Technical Drawing</span>
+            <h3 className="text-xl font-bold mb-3">Drawings</h3>
+            <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              Precise hand-drawn and technical drawings for engineering, medical, biology, circuits and more — priced per drawing based on your stream.
+            </p>
+            <ul className="mb-2 flex flex-col gap-1.5">
+              {['Engineering Drawings (B.Tech)', 'Medical & Biology Diagrams', 'Circuit & Network Diagrams', 'Flowcharts & Block Diagrams'].map(f => (
+                <li key={f} className="text-xs flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                  <span style={{ color: 'var(--gold)' }}>✓</span> {f}
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center gap-1.5 mt-2 text-xs" style={{ color: 'rgba(201,168,76,0.7)' }}>
+              <MapPin size={11} /><span>Kakinada · Hyderabad · Bangalore</span>
+            </div>
+            <DrawingsCalculator />
+          </motion.div>
 
-              <Link href={`/contact?service=${encodeURIComponent(s.service)}`}
-                className="w-full text-center py-3 rounded-xl text-sm font-semibold border transition-all hover:scale-105"
-                style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}>
-                Request This Service
-              </Link>
-            </motion.div>
-          ))}
+          {/* ── PPT Presentations ── */}
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={2}
+            className="rounded-2xl p-8 border flex flex-col hover:-translate-y-2 transition-transform"
+            style={{ background: 'var(--navy-light)', borderColor: 'rgba(201,168,76,0.2)' }}>
+            <div className="flex items-start justify-between mb-5">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                style={{ background: 'rgba(201,168,76,0.1)', color: 'var(--gold)' }}>
+                <BarChart2 size={36} />
+              </div>
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.2)' }}>
+                <Globe size={12} /> Worldwide
+              </span>
+            </div>
+            <span className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: 'var(--gold)' }}>Design</span>
+            <h3 className="text-xl font-bold mb-3">PPT Presentations</h3>
+            <p className="text-sm mb-5 flex-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              Visually compelling PowerPoint presentations crafted to impress evaluators and communicate your ideas clearly — available anywhere in the world.
+            </p>
+            <ul className="mb-5 flex flex-col gap-1.5">
+              {['Seminar & Project PPTs', 'Diagrams, Charts & Flowcharts', 'Professional Slide Design', 'Academic & Business Decks'].map(f => (
+                <li key={f} className="text-xs flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                  <span style={{ color: 'var(--gold)' }}>✓</span> {f}
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center gap-1.5 mb-6 text-xs" style={{ color: 'rgba(201,168,76,0.7)' }}>
+              <Globe size={11} /><span>Pan India & Worldwide</span>
+            </div>
+            <Link href={`/contact?service=${encodeURIComponent('PPT & Drawings')}`}
+              className="w-full text-center py-3 rounded-xl text-sm font-semibold border transition-all hover:scale-105"
+              style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}>
+              Request This Service
+            </Link>
+          </motion.div>
+
+          {/* ── Web Development ── */}
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={3}
+            className="rounded-2xl p-8 border flex flex-col hover:-translate-y-2 transition-transform"
+            style={{ background: 'var(--navy-light)', borderColor: 'rgba(201,168,76,0.2)' }}>
+            <div className="flex items-start justify-between mb-5">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                style={{ background: 'rgba(201,168,76,0.1)', color: 'var(--gold)' }}>
+                <Monitor size={36} />
+              </div>
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.2)' }}>
+                <Globe size={12} /> Worldwide
+              </span>
+            </div>
+            <span className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: 'var(--gold)' }}>Technical</span>
+            <h3 className="text-xl font-bold mb-3">Web Development</h3>
+            <p className="text-sm mb-5 flex-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              Custom websites and web applications built with modern technologies — available to students and professionals anywhere in India and worldwide.
+            </p>
+            <ul className="mb-5 flex flex-col gap-1.5">
+              {['Portfolio & Personal Sites', 'Academic Mini & Major Projects', 'React / Next.js / Full-Stack', 'E-commerce & Business Sites'].map(f => (
+                <li key={f} className="text-xs flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                  <span style={{ color: 'var(--gold)' }}>✓</span> {f}
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center gap-1.5 mb-6 text-xs" style={{ color: 'rgba(201,168,76,0.7)' }}>
+              <Globe size={11} /><span>Pan India & Worldwide</span>
+            </div>
+            <Link href={`/contact?service=${encodeURIComponent('Web Development')}`}
+              className="w-full text-center py-3 rounded-xl text-sm font-semibold border transition-all hover:scale-105"
+              style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}>
+              Request This Service
+            </Link>
+          </motion.div>
+
         </div>
       </section>
 
@@ -205,7 +374,6 @@ export default function ServicesPage() {
             </p>
             <h2 className="text-3xl md:text-4xl font-bold">Service Coverage</h2>
           </motion.div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {coverageCities.map((c, i) => (
               <motion.div key={c.city} variants={fadeUp} initial="hidden" whileInView="show"

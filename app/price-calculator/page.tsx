@@ -33,6 +33,8 @@ const STREAM_MUL: Record<string, number> = {
   'Inter': 1.0,
   'Degree': 1.2,
   'B.Tech': 1.5,
+  'M.Tech': 1.7,
+  'Masters': 1.6,
   'Medical': 1.8,
   'Others': 1.1,
 }
@@ -49,27 +51,27 @@ const YEAR_MUL: Record<string, number> = {
 const DRAWING_TYPES: Record<string, { label: string; streams: Record<string, number> }> = {
   'Engineering Drawing (B.Tech)': {
     label: 'Engineering Drawing',
-    streams: { 'B.Tech': 60, 'Degree': 45, 'Inter': 35, 'Medical': 50, 'Others': 40 },
+    streams: { 'B.Tech': 60, 'M.Tech': 70, 'Masters': 65, 'Degree': 45, 'Inter': 35, 'Medical': 50, 'Others': 40 },
   },
   'Medical Diagram': {
     label: 'Medical Diagram',
-    streams: { 'Medical': 70, 'B.Tech': 55, 'Degree': 50, 'Inter': 40, 'Others': 45 },
+    streams: { 'Medical': 70, 'M.Tech': 65, 'Masters': 60, 'B.Tech': 55, 'Degree': 50, 'Inter': 40, 'Others': 45 },
   },
   'Context-Free / General Sketch': {
     label: 'Context-Free / General Sketch',
-    streams: { 'Inter': 25, 'Degree': 30, 'B.Tech': 35, 'Medical': 35, 'Others': 25 },
+    streams: { 'Inter': 25, 'Degree': 30, 'B.Tech': 35, 'M.Tech': 40, 'Masters': 38, 'Medical': 35, 'Others': 25 },
   },
   'Circuit / Network Diagram': {
     label: 'Circuit / Network Diagram',
-    streams: { 'B.Tech': 50, 'Degree': 40, 'Inter': 30, 'Medical': 40, 'Others': 35 },
+    streams: { 'B.Tech': 50, 'M.Tech': 60, 'Masters': 55, 'Degree': 40, 'Inter': 30, 'Medical': 40, 'Others': 35 },
   },
   'Biology / Anatomy Drawing': {
     label: 'Biology / Anatomy Drawing',
-    streams: { 'Medical': 65, 'Inter': 35, 'Degree': 45, 'B.Tech': 45, 'Others': 35 },
+    streams: { 'Medical': 65, 'M.Tech': 55, 'Masters': 50, 'Inter': 35, 'Degree': 45, 'B.Tech': 45, 'Others': 35 },
   },
   'Flowchart / Block Diagram': {
     label: 'Flowchart / Block Diagram',
-    streams: { 'B.Tech': 40, 'Degree': 35, 'Inter': 25, 'Medical': 35, 'Others': 30 },
+    streams: { 'B.Tech': 40, 'M.Tech': 50, 'Masters': 45, 'Degree': 35, 'Inter': 25, 'Medical': 35, 'Others': 30 },
   },
 }
 
@@ -421,7 +423,7 @@ export default function PriceCalculatorPage() {
               <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid rgba(201,168,76,0.2)' }}>
-                    {['Type', 'Inter', 'Degree', 'B.Tech', 'Medical'].map(h => (
+                    {['Type', 'Inter', 'Degree', 'B.Tech', 'M.Tech', 'Masters', 'Medical'].map(h => (
                       <th key={h} className="text-left py-2 px-3 text-xs font-semibold" style={{ color: 'var(--gold)' }}>{h}</th>
                     ))}
                   </tr>
@@ -430,7 +432,7 @@ export default function PriceCalculatorPage() {
                   {Object.entries(RECORD_BASE).map(([type, base], i) => (
                     <tr key={type} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
                       <td className="py-2 px-3 text-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>{type}</td>
-                      {['Inter', 'Degree', 'B.Tech', 'Medical'].map(s => (
+                      {['Inter', 'Degree', 'B.Tech', 'M.Tech', 'Masters', 'Medical'].map(s => (
                         <td key={s} className="py-2 px-3 text-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>
                           ₹{Math.round(base * STREAM_MUL[s])}/pg
                         </td>
@@ -452,7 +454,7 @@ export default function PriceCalculatorPage() {
               <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid rgba(201,168,76,0.2)' }}>
-                    {['Drawing Type', 'Inter', 'Degree', 'B.Tech', 'Medical'].map(h => (
+                    {['Drawing Type', 'Inter', 'Degree', 'B.Tech', 'M.Tech', 'Masters', 'Medical'].map(h => (
                       <th key={h} className="text-left py-2 px-3 text-xs font-semibold" style={{ color: 'var(--gold)' }}>{h}</th>
                     ))}
                   </tr>
@@ -461,7 +463,7 @@ export default function PriceCalculatorPage() {
                   {Object.entries(DRAWING_TYPES).map(([, v], i) => (
                     <tr key={v.label} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
                       <td className="py-2 px-3 text-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>{v.label}</td>
-                      {['Inter', 'Degree', 'B.Tech', 'Medical'].map(s => (
+                      {['Inter', 'Degree', 'B.Tech', 'M.Tech', 'Masters', 'Medical'].map(s => (
                         <td key={s} className="py-2 px-3 text-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>₹{v.streams[s]}</td>
                       ))}
                     </tr>

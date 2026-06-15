@@ -27,15 +27,15 @@ const iStyle = {
 const WEB_SCOPES = ['Landing Page', 'Portfolio Website', 'Full-Stack Project', 'Academic Mini Project', 'E-commerce Site', 'Other (specify below)']
 
 const BASE_RATES: Record<string, number> = { 'Theory / Assignments': 10, 'Lab Records': 15, 'Project Report': 25, 'Observation Book': 12 }
-const STREAM_MUL: Record<string, number> = { 'Inter': 1.0, 'Degree': 1.2, 'B.Tech': 1.5, 'Medical': 1.8, 'Others': 1.1 }
+const STREAM_MUL: Record<string, number> = { 'Inter': 1.0, 'Degree': 1.2, 'B.Tech': 1.5, 'M.Tech': 1.7, 'Masters': 1.6, 'Medical': 1.8, 'Others': 1.1 }
 
 const DRAWING_TYPES: Record<string, Record<string, number>> = {
-  'Engineering Drawing':      { 'Inter': 35, 'Degree': 45, 'B.Tech': 60, 'Medical': 50, 'Others': 40 },
-  'Medical Diagram':          { 'Inter': 40, 'Degree': 50, 'B.Tech': 55, 'Medical': 70, 'Others': 45 },
-  'Context-Free / General Sketch': { 'Inter': 25, 'Degree': 30, 'B.Tech': 35, 'Medical': 35, 'Others': 25 },
-  'Circuit / Network Diagram':{ 'Inter': 30, 'Degree': 40, 'B.Tech': 50, 'Medical': 40, 'Others': 35 },
-  'Biology / Anatomy Drawing':{ 'Inter': 35, 'Degree': 45, 'B.Tech': 45, 'Medical': 65, 'Others': 35 },
-  'Flowchart / Block Diagram':{ 'Inter': 25, 'Degree': 35, 'B.Tech': 40, 'Medical': 35, 'Others': 30 },
+  'Engineering Drawing':      { 'Inter': 35, 'Degree': 45, 'B.Tech': 60, 'M.Tech': 70, 'Masters': 65, 'Medical': 50, 'Others': 40 },
+  'Medical Diagram':          { 'Inter': 40, 'Degree': 50, 'B.Tech': 55, 'M.Tech': 65, 'Masters': 60, 'Medical': 70, 'Others': 45 },
+  'Context-Free / General Sketch': { 'Inter': 25, 'Degree': 30, 'B.Tech': 35, 'M.Tech': 40, 'Masters': 38, 'Medical': 35, 'Others': 25 },
+  'Circuit / Network Diagram':{ 'Inter': 30, 'Degree': 40, 'B.Tech': 50, 'M.Tech': 60, 'Masters': 55, 'Medical': 40, 'Others': 35 },
+  'Biology / Anatomy Drawing':{ 'Inter': 35, 'Degree': 45, 'B.Tech': 45, 'M.Tech': 55, 'Masters': 50, 'Medical': 65, 'Others': 35 },
+  'Flowchart / Block Diagram':{ 'Inter': 25, 'Degree': 35, 'B.Tech': 40, 'M.Tech': 50, 'Masters': 45, 'Medical': 35, 'Others': 30 },
 }
 
 function estimatePrice(pages: string, stream: string, subjectType: string) {
@@ -274,7 +274,7 @@ function ContactForm() {
                 <label className="text-xs font-semibold" style={{ color: 'var(--gold)' }}>Stream</label>
                 <select style={{ ...iStyle, cursor: 'pointer' }} value={form.stream} onChange={e => set('stream', e.target.value)}>
                   <option value="" style={{ background: '#112240' }}>Select stream...</option>
-                  {['Inter', 'Degree', 'B.Tech', 'Medical', 'Others'].map(s => (
+                  {['Inter', 'Degree', 'B.Tech', 'M.Tech', 'Masters', 'Medical', 'Others'].map(s => (
                     <option key={s} value={s} style={{ background: '#112240' }}>{s}</option>
                   ))}
                 </select>

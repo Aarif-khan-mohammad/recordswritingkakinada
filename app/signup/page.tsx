@@ -246,7 +246,7 @@ export default function SignupPage() {
                   <Select label="Study *" required value={form.study}
                     onChange={e => { set('study', e.target.value); set('stream', '') }}>
                     <option value="" style={{ background: '#112240' }}>Select study</option>
-                    {['Inter', 'Degree', 'B.Tech', 'Medical', 'Others'].map(s => (
+                    {['Inter', 'Degree', 'B.Tech', 'M.Tech', 'Masters', 'Medical', 'Others'].map(s => (
                       <option key={s} value={s} style={{ background: '#112240' }}>{s}</option>
                     ))}
                   </Select>

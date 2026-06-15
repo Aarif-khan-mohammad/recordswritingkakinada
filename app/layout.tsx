@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     canonical: BASE_URL,
   },
   verification: {
-    google: 'add-your-google-search-console-verification-code-here',
+    google: 'vhCHWlC9fI4jIyNWlv3_r8dBuB8mUZ8zfDQhi4_NLaU',
   },
   icons: {
     icon: '/logo.png',
@@ -120,6 +120,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        <meta name="google-site-verification" content="vhCHWlC9fI4jIyNWlv3_r8dBuB8mUZ8zfDQhi4_NLaU" />
         <link rel="icon" href="/logo.png" type="image/png" sizes="any" />
         <link rel="apple-touch-icon" href="/logo.png" />
         <link rel="shortcut icon" href="/logo.png" />
