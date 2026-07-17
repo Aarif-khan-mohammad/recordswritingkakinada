@@ -326,7 +326,7 @@ export default function ServicesPage() {
             </Link>
           </motion.div>
 
-          {/* ── Website Designing ── */
+          {/* ── Website Designing ── */}
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={3}
             className="rounded-2xl p-8 border flex flex-col hover:-translate-y-2 transition-transform"
             style={{ background: 'var(--navy-light)', borderColor: 'rgba(201,168,76,0.2)' }}>
