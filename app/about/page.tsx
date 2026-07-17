@@ -45,7 +45,7 @@ export default function AboutPage() {
           <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(255,255,255,0.7)' }}>
             Founded in <span style={{ color: 'var(--gold)', fontWeight: 700 }}>2021</span>, Records Writing Kakinada was built with a single mission — to provide students and professionals
             with reliable, high-quality academic support services. Over <span style={{ color: 'var(--gold)', fontWeight: 700 }}>5 years</span>, we have completed
-            579+ records, 805+ drawings, 270+ presentations, and 20+ websites for students across India.
+            579+ records, 805+ drawings, 270+ presentations, and 62+ websites & web apps for students across India.
           </p>
           <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
             From meticulously written lab records and assignments to professional web development and

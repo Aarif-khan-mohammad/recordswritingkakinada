@@ -29,14 +29,16 @@ export default function Footer() {
               { href: '/', label: 'Home' },
               { href: '/about', label: 'About' },
               { href: '/services', label: 'Services' },
+              { href: 'https://lowkeywebdev.vercel.app/', label: 'Website Designing ↗', external: true },
               { href: '/price-calculator', label: 'Pricing' },
               { href: '/contact', label: 'Contact' },
               { href: '/privacy', label: 'Privacy Policy' },
             ].map(l => (
               <li key={l.href}>
-                <Link href={l.href} className="hover:text-yellow-400 transition-colors">
-                  {l.label}
-                </Link>
+                {'external' in l && l.external
+                  ? <a href={l.href} target="_blank" rel="noopener noreferrer" className="hover:text-yellow-400 transition-colors">{l.label}</a>
+                  : <Link href={l.href} className="hover:text-yellow-400 transition-colors">{l.label}</Link>
+                }
               </li>
             ))}
           </ul>

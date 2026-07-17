@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import Link from 'next/link'
 import { useState } from 'react'
-import { FileText, Monitor, BarChart2, PenTool, MapPin, Globe, Calculator } from 'lucide-react'
+import { FileText, Monitor, BarChart2, PenTool, MapPin, Globe, Calculator, Palette, ExternalLink } from 'lucide-react'
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -183,8 +183,8 @@ const coverageCities = [
   },
   {
     flag: '🌐', city: 'Pan India & Worldwide', state: 'Online',
-    desc: 'PPT and web development services available everywhere.',
-    services: ['PPT Presentations', 'Web Development'],
+    desc: 'PPT, web development, website designing and logo designing available everywhere.',
+    services: ['PPT Presentations', 'Web Development', 'Website Designing', 'Logo Designing'],
   },
 ]
 
@@ -206,7 +206,8 @@ export default function ServicesPage() {
         <motion.p variants={fadeUp} initial="hidden" animate="show" custom={2}
           className="mt-5 text-base max-w-2xl mx-auto" style={{ color: 'rgba(255,255,255,0.6)' }}>
           Records, Assignments & Drawings available in <span style={{ color: 'var(--gold)' }}>Kakinada, Hyderabad & Bangalore</span>.
-          PPT & Web Development available <span style={{ color: 'var(--gold)' }}>anywhere in the world</span>.
+          Web Development, Website Designing, Logo Designing & PPT available{' '}
+          <span style={{ color: 'var(--gold)' }}>worldwide — USA, UK, Australia, Canada & beyond</span>.
         </motion.p>
         <motion.div variants={fadeUp} initial="hidden" animate="show" custom={3}
           className="mt-8 flex flex-wrap gap-3 justify-center">
@@ -216,14 +217,14 @@ export default function ServicesPage() {
           </span>
           <span className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold"
             style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.25)', color: 'var(--gold)' }}>
-            <Globe size={12} /> PPT & Web Dev: Pan India & Worldwide
+            <Globe size={12} /> Web, Design & PPT: USA · UK · Australia · Canada · Worldwide
           </span>
         </motion.div>
       </section>
 
       {/* Service Cards */}
       <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
 
           {/* ── Records & Assignments ── */}
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={0}
@@ -355,6 +356,86 @@ export default function ServicesPage() {
               <Globe size={11} /><span>Pan India & Worldwide</span>
             </div>
             <Link href={`/contact?service=${encodeURIComponent('Web Development')}`}
+              className="w-full text-center py-3 rounded-xl text-sm font-semibold border transition-all hover:scale-105"
+              style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}>
+              Request This Service
+            </Link>
+          </motion.div>
+
+          {/* ── Website Designing ── */}
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={4}
+            className="rounded-2xl p-8 border flex flex-col hover:-translate-y-2 transition-transform"
+            style={{ background: 'var(--navy-light)', borderColor: 'rgba(201,168,76,0.2)' }}>
+            <div className="flex items-start justify-between mb-5">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                style={{ background: 'rgba(201,168,76,0.1)', color: 'var(--gold)' }}>
+                <ExternalLink size={36} />
+              </div>
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.2)' }}>
+                <Globe size={12} /> Worldwide
+              </span>
+            </div>
+            <span className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: 'var(--gold)' }}>Design</span>
+            <h3 className="text-xl font-bold mb-1">Website Designing</h3>
+            <p className="text-xs mb-3 font-semibold" style={{ color: 'var(--gold)' }}>62+ Websites & Web Apps Delivered</p>
+            <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
+              {[
+                { n: '22+', l: 'Static Websites' },
+                { n: '18+', l: 'Dynamic Web Apps' },
+                { n: '12+', l: 'Analytics Dashboards' },
+                { n: '10+', l: 'Portfolio Sites' },
+              ].map(s => (
+                <div key={s.l} className="rounded-xl p-2.5 border text-center"
+                  style={{ background: 'rgba(201,168,76,0.06)', borderColor: 'rgba(201,168,76,0.2)' }}>
+                  <div className="font-extrabold text-base" style={{ color: 'var(--gold)' }}>{s.n}</div>
+                  <div style={{ color: 'rgba(255,255,255,0.5)' }}>{s.l}</div>
+                </div>
+              ))}
+            </div>
+            <p className="text-sm mb-5 flex-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              Professional website designing — landing pages, brochure sites, CMS portals, admin dashboards and more. View our full portfolio.
+            </p>
+            <div className="flex items-center gap-1.5 mb-4 text-xs" style={{ color: 'rgba(201,168,76,0.7)' }}>
+              <Globe size={11} /><span>Pan India & Worldwide</span>
+            </div>
+            <a href="https://lowkeywebdev.vercel.app/" target="_blank" rel="noopener noreferrer"
+              className="w-full text-center py-3 rounded-xl text-sm font-semibold transition-all hover:scale-105 flex items-center justify-center gap-2"
+              style={{ background: 'var(--gold)', color: 'var(--navy)' }}>
+              View Portfolio <ExternalLink size={14} />
+            </a>
+          </motion.div>
+
+          {/* ── Logo Designing ── */}
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} custom={5}
+            className="rounded-2xl p-8 border flex flex-col hover:-translate-y-2 transition-transform"
+            style={{ background: 'var(--navy-light)', borderColor: 'rgba(201,168,76,0.2)' }}>
+            <div className="flex items-start justify-between mb-5">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                style={{ background: 'rgba(201,168,76,0.1)', color: 'var(--gold)' }}>
+                <Palette size={36} />
+              </div>
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.2)' }}>
+                <Globe size={12} /> Worldwide
+              </span>
+            </div>
+            <span className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: 'var(--gold)' }}>Branding</span>
+            <h3 className="text-xl font-bold mb-3">Logo Designing</h3>
+            <p className="text-sm mb-5 flex-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              Professional logo design and brand identity for businesses, startups, and individuals — delivered digitally anywhere in India and worldwide.
+            </p>
+            <ul className="mb-5 flex flex-col gap-1.5">
+              {['Business & Startup Logos', 'Personal Brand Identity', 'Social Media Branding Kit', 'Multiple Format Delivery (PNG, SVG, PDF)'].map(f => (
+                <li key={f} className="text-xs flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                  <span style={{ color: 'var(--gold)' }}>✓</span> {f}
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center gap-1.5 mb-6 text-xs" style={{ color: 'rgba(201,168,76,0.7)' }}>
+              <Globe size={11} /><span>Pan India & Worldwide</span>
+            </div>
+            <Link href={`/contact?service=${encodeURIComponent('Logo Designing')}`}
               className="w-full text-center py-3 rounded-xl text-sm font-semibold border transition-all hover:scale-105"
               style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}>
               Request This Service

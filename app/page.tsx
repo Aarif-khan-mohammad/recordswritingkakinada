@@ -27,7 +27,7 @@ const stats = [
   { value: 579, suffix: '+', label: 'Records & Notes', sub: 'Delivered' },
   { value: 805, suffix: '+', label: 'Drawings', sub: 'Completed' },
   { value: 270, suffix: '+', label: 'Presentations', sub: 'Created' },
-  { value: 20, suffix: '+', label: 'Websites', sub: 'Built' },
+  { value: 62, suffix: '+', label: 'Websites & Web Apps', sub: 'Shipped' },
 ]
 
 function Counter({ value, suffix }: { value: number; suffix: string }) {
@@ -75,7 +75,9 @@ export default function HomePage() {
           className="mt-6 text-lg max-w-xl"
           style={{ color: 'rgba(255,255,255,0.65)' }}>
           Reliable, confidential, and high-quality academic and technical services —
-          serving Kakinada, Hyderabad & Bangalore for records, and anywhere in the world for web & PPT.
+          serving Kakinada, Hyderabad & Bangalore for records, and clients in{' '}
+          <span style={{ color: 'var(--gold)' }}>USA, UK, Australia, Canada & worldwide</span>{' '}
+          for web development, website designing, logo designing & PPT.
         </motion.p>
 
         <motion.div variants={fadeUp} initial="hidden" animate="show" custom={3}
