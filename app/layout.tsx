@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     default: 'Records Writing Kakinada | #1 Lab Records, Assignments & Academic Services',
     template: '%s | Records Writing Kakinada',
   },
-  description: 'Professional academic & technical services — lab records writing, assignments, PPT presentations, web development, website designing & logo designing. Trusted by 1000+ students since 2021. Based in Kakinada, India. Web, PPT & design services available worldwide — USA, UK, Australia, Canada & beyond.'},
+  description: 'Professional academic & technical services — lab records writing, assignments, PPT presentations, web development, website designing & logo designing. Trusted by 1000+ students since 2021. Based in Kakinada, India. Web, PPT & design services available worldwide — USA, UK, Australia, Canada & beyond.',
   keywords: [
     // Core brand
     'records writing kakinada',
